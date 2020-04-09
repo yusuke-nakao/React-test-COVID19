@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import DeckGL from '@deck.gl/react';
-import {GeoJsonLayer} from '@deck.gl/layers';
-import {StaticMap, Popup} from 'react-map-gl';
+import MapGL, {Popup, GeolocateControl} from 'react-map-gl';
 import './App.css';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -12,17 +10,26 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Drawer from '@material-ui/core/Drawer';
+import Pins from './pins';
+import Message from './component/Message';
 
 //MapBoxへのアクセストークン
 const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoieXVzdWtlZWVlZWU1NSIsImEiOiJjazhudGpiczgxMmN5M2dxb3FyMTBvZGUwIn0.4rGM-WGp5mEoCdGQDHEYLA';
 
-// 地図上の初期表示位置を指定（大阪）
+const geolocateStyle = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  margin: 10
+};
+
+// 地図上の初期表示位置を指定（初期位置は東京）
 const initialViewState = {
-  longitude: 135.497009,
-  latitude: 34.669529,
-  zoom: 8,
-  pitch: 45,
-  bearing: 0
+  width: "100%",
+  height: 900,
+  longitude: 139.7212733,
+  latitude: 35.6606213,
+  zoom: 8
 };
 
 //style設定
@@ -49,8 +56,9 @@ function App(){
 
   const [totalInfo, SettotalInfo] = useState(null);
   const [drawerState, SetdrawerState] = useState(false);
-  const [hoveredObject, SethoveredObject] = useState(undefined);
-  const [layers, Setlayers] = useState(null);
+  const [Covid19Info, SetCovid19Info] = useState(null);
+  const [viewport, setViewPort ] = useState(initialViewState)
+  const [popupInfo, SetpopupInfo] = useState(null);
 
   const toggleDrawer = (side, open) =>()=>{
     SetdrawerState(open);
@@ -75,28 +83,14 @@ function App(){
   //コンポーネントがマウントされてから動作するメソッド
   //APIにアクセスしデータを取得する
   useEffect(() =>{
+    //COVID-19情報取得
     fetch("https://covid19-japan-web-api.now.sh/api/v1/prefectures")
       .then(res => res.json())
       .then(
         (result) => {
           console.log("result", result);
+          SetCovid19Info(result);
 
-          let layer = new GeoJsonLayer({
-              //任意のid
-              id: 'Point_layer',
-              //GeoJsonを指定
-              data: makeGeoJson(result),
-              //pointの半径
-              getRadius: d => 4000,
-              //地物のカラーをRGBaで指定
-              //aは透過度で0～255から指定
-              getFillColor: d => [245,36,36,150],
-              pickable: true,
-              //地物にホバーした時に発生するイベント
-              //stateを更新する
-              onHover: info => SethoveredObject(info.object)
-            });
-          Setlayers(layer);
           //国内総合情報を取得
           GetTotalInfo();
         },
@@ -106,72 +100,19 @@ function App(){
       )
   },[]);
 
-  //APIから取得したJSONデータをGeoJsonフォーマットに変換
-  function makeGeoJson(data){
-    let retJson = {
-      type:"FeatureCollection",
-      features: []
-    };
-    
-    data.forEach(el => {
-      let val = {
-        id: el.id,
-        type: "Feature",
-        geometry:{
-          type: "Point",
-          coordinates: [
-            el.lng, el.lat
-          ] 
-        },
-        properties:{
-          id: el.id,
-          name: el.name_ja,
-          lat: el.lat,
-          lng: el.lng,
-          cases: el.cases,
-          deaths: el.deaths
-        }
-      }
-      retJson.features.push(val);
-    });
-  
-    console.log("retJson", retJson);
-    return retJson;
-  }
-
-  //ポップアップ表示用関数
-  function _renderTooltip(){
-    console.log("hoveredObject", hoveredObject);
-  
-    if(hoveredObject !== undefined){
-      return(
-        <Popup
-          longitude={hoveredObject.geometry.coordinates[0]}
-          latitude={hoveredObject.geometry.coordinates[1]}>
-          <div>
-            <p>id: {hoveredObject.properties.id}</p>
-            <p>場所: {hoveredObject.properties.name}</p>
-            <p>感染数: {hoveredObject.properties.cases}人</p>
-            <p>死者数: {hoveredObject.properties.deaths}人</p>
-          </div>
-        </Popup>
-      )
-    }
-  }
-
   //国内総合情報を取得
-function GetTotalInfo(){
-  fetch("https://covid19-japan-web-api.now.sh/api/v1/total")
-    .then(res => res.json())
-    .then(
-      (result) => {
-        SettotalInfo(result);
-        console.log("TotalInfo result", result);
-      },
-      (error) => {
-        console.log(error)
-      }
-    )
+  function GetTotalInfo(){
+    fetch("https://covid19-japan-web-api.now.sh/api/v1/total")
+      .then(res => res.json())
+      .then(
+        (result) => {
+          SettotalInfo(result);
+          console.log("TotalInfo result", result);
+        },
+        (error) => {
+          console.log(error)
+        }
+      )
   }
 
   //国内総合情報を表示
@@ -194,43 +135,76 @@ function GetTotalInfo(){
     }
   }
 
-  return(
-    <>
-    <DeckGL
-      initialViewState={initialViewState}
-      controller={true}
-      layers={layers}
-    >
-      <div className={classes.root}>
-        <AppBar position="relative" color="inherit">
-          <Toolbar>
-            <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={toggleDrawer('left', true)}>
-              <MenuIcon></MenuIcon>
-            </IconButton>
-            <Drawer open={drawerState} onClose={toggleDrawer('left', false)}>
-              <div
-                tabIndex={0}
-                role="button"
-                onClick={toggleDrawer('left', false)}
-                onKeyDown={toggleDrawer('left', false)}>
-                {sideList}
-              </div>
-            </Drawer>
-              COVID-19 Map
-            <div className={classes.totalDiv}>
-              {_DispTotalInfo()}
+  //ピンクリックイベント
+  const _onClickMarker = city => {
+    SetpopupInfo(city);
+  };
+
+  //ポップアップ表示処理
+  function _renderPopup() {
+    return (
+      popupInfo && (
+        <Popup
+          tipSize={5}
+          anchor="top"
+          longitude={popupInfo.lng}
+          latitude={popupInfo.lat}
+          closeOnClick={false}
+          onClose={() => SetpopupInfo(null)}
+        >
+          <div>
+            <p>id: {popupInfo.id}</p>
+            <p>場所: {popupInfo.name}</p>
+            <p>感染数: {popupInfo.cases}人</p>
+            <p>死者数: {popupInfo.deaths}人</p>
+          </div>
+        </Popup>
+      )
+    );
+  }
+
+  const _onViewportChange = viewport => setViewPort({...viewport})
+
+  return (
+    <div className={classes.root}>
+      <AppBar position="relative" color="inherit">
+        <Toolbar>
+          <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={toggleDrawer('left', true)}>
+            <MenuIcon></MenuIcon>
+          </IconButton>
+          <Drawer open={drawerState} onClose={toggleDrawer('left', false)}>
+            <div
+              tabIndex={0}
+              role="button"
+              onClick={toggleDrawer('left', false)}
+              onKeyDown={toggleDrawer('left', false)}>
+              {sideList}
             </div>
-          </Toolbar>
-        </AppBar>
-      </div>
-      <StaticMap
+          </Drawer>
+            COVID-19 Map
+          <div className={classes.totalDiv}>
+            {_DispTotalInfo()}
+          </div>
+        </Toolbar>
+      </AppBar>
+      <div style={{textAlign: 'center', fontSize: '25px', fontWeight: 'bolder' }}></div>
+      <MapGL
+        {...viewport}
+        mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
         mapStyle="mapbox://styles/mapbox/streets-v11"
-        mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}>
-        {_renderTooltip()}
-      </StaticMap>
-    </DeckGL>
-    </>
-  );
+        onViewportChange={_onViewportChange}
+      >
+        <Pins data={Covid19Info} onClick={_onClickMarker}/>
+        {_renderPopup()}
+
+        <GeolocateControl
+          style={geolocateStyle}
+          positionOptions={{enableHighAccuracy: true}}
+          trackUserLocation={true}
+        />
+      </MapGL>
+    </div>
+  )
 }
 
 export default App;
