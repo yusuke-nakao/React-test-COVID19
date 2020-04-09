@@ -149,7 +149,7 @@ function App(){
           anchor="top"
           longitude={popupInfo.lng}
           latitude={popupInfo.lat}
-          closeOnClick={false}
+          closeOnClick={true}
           onClose={() => SetpopupInfo(null)}
         >
           <div>
