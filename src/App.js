@@ -213,7 +213,7 @@ function App(){
         mapStyle="mapbox://styles/mapbox/streets-v11"
         onViewportChange={_onViewportChange}
       >
-        <Pins data={Covid19Info} onClick={_onClickMarker}/>
+        <Pins data={Covid19Info} vp={viewport} onClick={_onClickMarker}/>
         {_renderPopup()}
 
         <GeolocateControl
