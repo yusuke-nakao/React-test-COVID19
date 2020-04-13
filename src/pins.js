@@ -28,8 +28,8 @@ export default class Pins extends PureComponent {
     if(data === null)
       return null;
 
-    //表示中の地点（緯度経度）から半径50km以内のデータをピックアップ
-    let datas = data.features.filter(x => this.GetDistance(x.geometry.coordinates[1], x.geometry.coordinates[0], vp.latitude, vp.longitude) <= 50);
+    //表示中の地点（緯度経度）から半径30km以内のデータをピックアップ
+    let datas = data.features.filter(x => this.GetDistance(x.geometry.coordinates[1], x.geometry.coordinates[0], vp.latitude, vp.longitude) <= 30);
     //return data.map((city, index) => (
       //<Marker key={`marker-${index}`} longitude={city.lng} latitude={city.lat}></Marker>
     return datas.map((city, index) => (

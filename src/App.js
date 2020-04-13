@@ -32,7 +32,7 @@ const initialViewState = {
   //緯度
   latitude: 35.6606213,
   //拡大
-  zoom: 8,
+  zoom: 9,
   //地図の傾斜
   pitch: 45
 };
