@@ -27,9 +27,14 @@ const geolocateStyle = {
 const initialViewState = {
   width: "100%",
   height: 900,
+  //経度
   longitude: 139.7212733,
+  //緯度
   latitude: 35.6606213,
-  zoom: 8
+  //拡大
+  zoom: 8,
+  //地図の傾斜
+  pitch: 45
 };
 
 //style設定
@@ -164,6 +169,12 @@ function App(){
   }
 
   const _onViewportChange = viewport => setViewPort({...viewport})
+  
+  //locate meクリック時のイベント
+  const _onGeoLocateViewportChange = (viewport) => {
+    viewport.zoom = 18
+    setViewPort({...viewport})
+  }
 
   return (
     <div className={classes.root}>
@@ -198,6 +209,7 @@ function App(){
         {_renderPopup()}
 
         <GeolocateControl
+          onViewportChange={_onGeoLocateViewportChange}
           style={geolocateStyle}
           positionOptions={{enableHighAccuracy: true}}
           trackUserLocation={true}
