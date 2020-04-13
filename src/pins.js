@@ -16,8 +16,10 @@ export default class Pins extends PureComponent {
     if(data === null)
       return null;
 
-    return data.map((city, index) => (
-      <Marker key={`marker-${index}`} longitude={city.lng} latitude={city.lat}>
+    //return data.map((city, index) => (
+      //<Marker key={`marker-${index}`} longitude={city.lng} latitude={city.lat}></Marker>
+    return data.features.map((city, index) => (
+      <Marker key={`marker-${index}`} longitude={city.geometry.coordinates[0]} latitude={city.geometry.coordinates[1]}>
         <svg
           height={SIZE}
           viewBox="0 0 24 24"

@@ -89,7 +89,8 @@ function App(){
   //APIにアクセスしデータを取得する
   useEffect(() =>{
     //COVID-19情報取得
-    fetch("https://covid19-japan-web-api.now.sh/api/v1/prefectures")
+    //fetch("https://covid19-japan-web-api.now.sh/api/v1/prefectures")
+    fetch("https://services6.arcgis.com/5jNaHNYe2AnnqRnS/arcgis/rest/services/COVID19_JapanData/FeatureServer/0/query?where=%E9%80%9A%E3%81%97%3E0&returnIdsOnly=false&returnCountOnly=false&&f=pgeojson&outFields=*&orderByFields=%E9%80%9A%E3%81%97")
       .then(res => res.json())
       .then(
         (result) => {
@@ -152,16 +153,23 @@ function App(){
         <Popup
           tipSize={5}
           anchor="top"
-          longitude={popupInfo.lng}
-          latitude={popupInfo.lat}
+          /* longitude={popupInfo.lng}
+          latitude={popupInfo.lat} */
+          longitude={popupInfo.geometry.coordinates[0]}
+          latitude={popupInfo.geometry.coordinates[1]}
           closeOnClick={true}
           onClose={() => SetpopupInfo(null)}
         >
           <div>
-            <p>id: {popupInfo.id}</p>
+            {/* <p>id: {popupInfo.id}</p>
             <p>場所: {popupInfo.name}</p>
             <p>感染数: {popupInfo.cases}人</p>
-            <p>死者数: {popupInfo.deaths}人</p>
+            <p>死者数: {popupInfo.deaths}人</p> */}
+            <p>id: {popupInfo.id}</p>
+            <p>性別: {popupInfo.properties.性別}</p>
+            <p>年齢: {popupInfo.properties.年代}</p>
+            <p>居住都道府県: {popupInfo.properties.居住都道府県}</p>
+            <p>受診都道府県: {popupInfo.properties.受診都道府県}</p>
           </div>
         </Popup>
       )
@@ -169,7 +177,7 @@ function App(){
   }
 
   const _onViewportChange = viewport => setViewPort({...viewport})
-  
+
   //locate meクリック時のイベント
   const _onGeoLocateViewportChange = (viewport) => {
     viewport.zoom = 18
