@@ -90,7 +90,8 @@ function App(){
   useEffect(() =>{
     //COVID-19情報取得
     //fetch("https://covid19-japan-web-api.now.sh/api/v1/prefectures")
-    fetch("https://services6.arcgis.com/5jNaHNYe2AnnqRnS/arcgis/rest/services/COVID19_JapanData/FeatureServer/0/query?where=%E9%80%9A%E3%81%97%3E0&returnIdsOnly=false&returnCountOnly=false&&f=pgeojson&outFields=*&orderByFields=%E9%80%9A%E3%81%97")
+    //fetch("https://services6.arcgis.com/5jNaHNYe2AnnqRnS/arcgis/rest/services/COVID19_JapanData/FeatureServer/0/query?where=%E9%80%9A%E3%81%97%3E0&returnIdsOnly=false&returnCountOnly=false&&f=pgeojson&outFields=*&orderByFields=%E9%80%9A%E3%81%97")
+    fetch("https://services6.arcgis.com/5jNaHNYe2AnnqRnS/arcgis/rest/services/COVID19_JapanCaseData/FeatureServer/0/query?where=%E9%80%9A%E3%81%97%3E-1&returnIdsOnly=false&returnCountOnly=false&&f=pgeojson&outFields=*&orderByFields=%E9%80%9A%E3%81%97")
       .then(res => res.json())
       .then(
         (result) => {
@@ -124,10 +125,11 @@ function App(){
   //国内総合情報を表示
   function _DispTotalInfo(){
     if(totalInfo !== null){
+      let now = new Date();
       return(
         <div className={classes.fontSize_small}>
-          <div>最終更新日: {DateConvert(totalInfo.date)}</div>
-          <div>陽性患者数: {totalInfo.positive}人</div>
+          <div>最終更新日: {now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate()}</div>
+          <div>陽性患者数: {Covid19Info.features.length}人</div>
         </div>
       )
     }
