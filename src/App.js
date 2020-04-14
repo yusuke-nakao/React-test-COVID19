@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import MapGL, {Popup, GeolocateControl} from 'react-map-gl';
+import MapGL, {Popup, GeolocateControl, Source, Layer, NavigationControl, FullscreenControl, ScaleControl} from 'react-map-gl';
 import './App.css';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -10,8 +10,8 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Drawer from '@material-ui/core/Drawer';
-import Pins from './pins';
 import Message from './component/Message';
+import {clusterLayer, clusterCountLayer, unclusteredPointLayer} from './map-style.js';
 
 //MapBoxへのアクセストークン
 const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoieXVzdWtlZWVlZWU1NSIsImEiOiJjazhudGpiczgxMmN5M2dxb3FyMTBvZGUwIn0.4rGM-WGp5mEoCdGQDHEYLA';
@@ -23,6 +23,27 @@ const geolocateStyle = {
   margin: 10
 };
 
+const fullscreenControlStyle = {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  padding: '10px'
+};
+
+const navStyle = {
+  position: 'absolute',
+  top: 36,
+  left: 0,
+  padding: '10px'
+};
+
+const scaleControlStyle = {
+  position: 'absolute',
+  bottom: 36,
+  left: 0,
+  padding: '10px'
+};
+
 // 地図上の初期表示位置を指定（初期位置は東京）
 const initialViewState = {
   width: "100%",
@@ -32,9 +53,9 @@ const initialViewState = {
   //緯度
   latitude: 35.6606213,
   //拡大
-  zoom: 9,
+  zoom: 7,
   //地図の傾斜
-  pitch: 45
+  pitch: 0
 };
 
 //style設定
@@ -90,7 +111,6 @@ function App(){
   useEffect(() =>{
     //COVID-19情報取得
     //fetch("https://covid19-japan-web-api.now.sh/api/v1/prefectures")
-    //fetch("https://services6.arcgis.com/5jNaHNYe2AnnqRnS/arcgis/rest/services/COVID19_JapanData/FeatureServer/0/query?where=%E9%80%9A%E3%81%97%3E0&returnIdsOnly=false&returnCountOnly=false&&f=pgeojson&outFields=*&orderByFields=%E9%80%9A%E3%81%97")
     fetch("https://services6.arcgis.com/5jNaHNYe2AnnqRnS/arcgis/rest/services/COVID19_JapanCaseData/FeatureServer/0/query?where=%E9%80%9A%E3%81%97%3E-1&returnIdsOnly=false&returnCountOnly=false&&f=pgeojson&outFields=*&orderByFields=%E9%80%9A%E3%81%97")
       .then(res => res.json())
       .then(
@@ -155,18 +175,12 @@ function App(){
         <Popup
           tipSize={5}
           anchor="top"
-          /* longitude={popupInfo.lng}
-          latitude={popupInfo.lat} */
           longitude={popupInfo.geometry.coordinates[0]}
           latitude={popupInfo.geometry.coordinates[1]}
           closeOnClick={true}
           onClose={() => SetpopupInfo(null)}
         >
           <div>
-            {/* <p>id: {popupInfo.id}</p>
-            <p>場所: {popupInfo.name}</p>
-            <p>感染数: {popupInfo.cases}人</p>
-            <p>死者数: {popupInfo.deaths}人</p> */}
             <p>id: {popupInfo.id}</p>
             <p>性別: {popupInfo.properties.性別}</p>
             <p>年齢: {popupInfo.properties.年代}</p>
@@ -185,6 +199,37 @@ function App(){
     viewport.zoom = 18
     setViewPort({...viewport})
   }
+
+  var _sourceRef = React.createRef();
+
+  //clusterクリック処理
+  const _onClick = event => {
+    try{
+      const feature = event.features[0];
+      const clusterId = feature.properties.cluster_id;
+      console.log("clusterId",clusterId)
+
+      const mapboxSource = _sourceRef.current.getSource();
+
+      mapboxSource.getClusterExpansionZoom(clusterId, (err, zoom) => {
+        if (err) {
+          return;
+        }
+
+        _onViewportChange({
+          ...viewport,
+          longitude: feature.geometry.coordinates[0],
+          latitude: feature.geometry.coordinates[1],
+          zoom,
+          transitionDuration: 500
+        });
+      });
+    }
+    catch(e){
+      console.log("e = ",e.message);
+      return;
+    }
+  };
 
   return (
     <div className={classes.root}>
@@ -212,11 +257,32 @@ function App(){
       <MapGL
         {...viewport}
         mapboxApiAccessToken={MAPBOX_ACCESS_TOKEN}
-        mapStyle="mapbox://styles/mapbox/streets-v11"
+        mapStyle="mapbox://styles/mapbox/streets-v11?optimize = true"
+        interactiveLayerIds={[clusterLayer.id]}
         onViewportChange={_onViewportChange}
+        onClick={_onClick}
       >
-        <Pins data={Covid19Info} vp={viewport} onClick={_onClickMarker}/>
-        {_renderPopup()}
+        <Source 
+          type="geojson" 
+          data={Covid19Info}
+          cluster={true}
+          clusterMaxZoom={18}
+          clusterRadius={50}
+          ref={_sourceRef}
+        >
+          <Layer {...clusterLayer} />
+          <Layer {...clusterCountLayer} />
+          <Layer {...unclusteredPointLayer} />
+        </Source>
+        <div style={fullscreenControlStyle}>
+          <FullscreenControl />
+        </div>
+        <div style={navStyle}>
+          <NavigationControl />
+        </div>
+        <div style={scaleControlStyle}>
+          <ScaleControl />
+        </div>
 
         <GeolocateControl
           onViewportChange={_onGeoLocateViewportChange}
