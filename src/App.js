@@ -54,6 +54,7 @@ const initialViewState = {
   latitude: 35.6606213,
   //拡大
   zoom: 7,
+  bearing: 0,
   //地図の傾斜
   pitch: 0
 };
@@ -145,10 +146,16 @@ function App(){
   //国内総合情報を表示
   function _DispTotalInfo(){
     if(totalInfo !== null){
-      let now = new Date();
+      let dates = Covid19Info.features.map(x => {
+        return x.properties.確定日YYYYMMDD;
+      });
+      //確定日配列から最大値を取得（UNIXタイムで取得）
+      let maxDate = Math.max.apply(null,dates);
+      let dateTime = new Date(maxDate).toLocaleDateString();
+      
       return(
         <div className={classes.fontSize_small}>
-          <div>最終更新日: {now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate()}</div>
+          <div>最終更新日: {dateTime}</div>
           <div>陽性患者数: {Covid19Info.features.length}人</div>
         </div>
       )
