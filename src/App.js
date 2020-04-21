@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+/* import React, { useState, useEffect } from 'react';
 import MapGL, {Popup, GeolocateControl, Source, Layer, NavigationControl, FullscreenControl, ScaleControl} from 'react-map-gl';
 import './App.css';
 import { makeStyles } from '@material-ui/core/styles';
@@ -245,7 +245,9 @@ function App(){
           <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={toggleDrawer('left', true)}>
             <MenuIcon></MenuIcon>
           </IconButton>
-          <Drawer open={drawerState} onClose={toggleDrawer('left', false)}>
+          <Drawer 
+            open={drawerState} 
+            onClose={toggleDrawer('left', false)}>
             <div
               tabIndex={0}
               role="button"
@@ -302,4 +304,23 @@ function App(){
   )
 }
 
+export default App;
+ */
+
+import './App.css';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Route, Switch, Link } from 'react-router-dom';
+import Login from '../src/pages/Login'
+import Default from './Default';
+
+function App(){
+  return(
+    <BrowserRouter>
+      <Switch>
+        <Route exact path='/Login'><Login/></Route>
+        <Route path='/'><Default/></Route>
+      </Switch>
+    </BrowserRouter>
+  )
+}
 export default App;
