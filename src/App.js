@@ -317,8 +317,8 @@ function App(){
   return(
     <BrowserRouter>
       <Switch>
-        <Route exact path='/Login' component={Login}></Route>
-        <Route path='/' component={Default}></Route>
+        <Route path='/Login' component={Login}></Route>
+        <Route exact path='/' component={Default}></Route>
       </Switch>
     </BrowserRouter>
   )
