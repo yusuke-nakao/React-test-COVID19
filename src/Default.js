@@ -116,11 +116,10 @@ function Default(){
           </Toolbar>
         </AppBar>
         <Switch>
-          <Route exact path='/' component={Home}></Route>
-          <Route path='/Home' component={Home}></Route>
-          <Route path='/About' component={About}></Route>
-          <Route path='/Service' component={Service}></Route>
-          <Route></Route>
+          <Route exact path='/'><Home/></Route>
+          <Route path='/Home'><Home/></Route>
+          <Route path='/About'><About/></Route>
+          <Route path='/Service'><Service/></Route>
         </Switch>
       </BrowserRouter>
     </div>
