@@ -318,7 +318,7 @@ function App(){
     <BrowserRouter>
       <Switch>
         <Route path='/Login'><Login/></Route>
-        <Route path='/'><Default/></Route>
+        <Route path=''><Default/></Route>
       </Switch>
     </BrowserRouter>
   )

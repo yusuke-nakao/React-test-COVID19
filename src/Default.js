@@ -116,7 +116,7 @@ function Default(){
           </Toolbar>
         </AppBar>
         <Switch>
-          <Route exact path='/'><Home/></Route>
+          <Route exact path=''><Home/></Route>
           <Route path='/Home'><Home/></Route>
           <Route path='/About'><About/></Route>
           <Route path='/Service'><Service/></Route>
