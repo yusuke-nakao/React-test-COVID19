@@ -308,7 +308,7 @@ export default App;
  */
 
 import './App.css';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter, Route, Switch, Link } from 'react-router-dom';
 import Login from '../src/pages/Login'
 import Default from './Default';
@@ -317,8 +317,8 @@ function App(){
   return(
     <BrowserRouter>
       <Switch>
-        <Route exact path='/Login'><Login/></Route>
-        <Route path='/'><Default/></Route>
+        <Route exact path='/Login' component={Login}></Route>
+        <Route path='/' component={Default}></Route>
       </Switch>
     </BrowserRouter>
   )
