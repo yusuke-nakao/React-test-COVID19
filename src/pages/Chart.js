@@ -1,9 +1,9 @@
 import '../App.css';
 import React, { useState, useEffect } from 'react';
 
-function Service(){
+function Chart(){
     return(
-        <h1>Service</h1>
+        <h1>Chart.js now developping</h1>
     );
 }
-export default Service;
+export default Chart;

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import MapGL, { GeolocateControl, Source, Layer, NavigationControl, FullscreenControl, ScaleControl} from 'react-map-gl';
 import '../App.css';
 import { makeStyles } from '@material-ui/core/styles';
-import {clusterLayer, clusterCountLayer, unclusteredPointLayer} from '../map-style.js';
+import {clusterLayer, clusterCountLayer, unclusteredPointLayer} from './map-style.js';
 import { HeaderInfoContext } from '../Default';
 
 //MapBoxへのアクセストークン
@@ -71,7 +71,7 @@ const useStyles = makeStyles({
   }
 });
 
-function Home(){
+function Map(){
   const [Covid19Info, SetCovid19Info] = useState(null);
   const [viewport, setViewPort ] = useState(null);
   const { headerInfo } = useContext(HeaderInfoContext);
@@ -188,4 +188,4 @@ function Home(){
   );
 }
 
-export default Home;
+export default Map;

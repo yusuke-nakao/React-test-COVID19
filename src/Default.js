@@ -1,7 +1,7 @@
 import './App.css';
 import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { BrowserRouter, Route, Switch, Link } from 'react-router-dom';
+import { BrowserRouter, Route, Switch, Link, Redirect } from 'react-router-dom';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -10,10 +10,26 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Drawer from '@material-ui/core/Drawer';
+import { ListItemIcon, Divider, CssBaseline } from '@material-ui/core';
 
-import Home from '../src/pages/Home';
-import About from '../src/pages/About';
-import Service from '../src/pages/Service'
+//components
+import Map from '../src/pages/Map';
+import Chart from '../src/pages/Chart';
+import Reports from '../src/pages/Reports'
+import { mainListItems,secondaryListItems } from './component/listitems'
+
+
+//Icons
+import DashboardIcon from '@material-ui/icons/Dashboard';
+import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
+import PeopleIcon from '@material-ui/icons/People';
+import BarChartIcon from '@material-ui/icons/BarChart';
+import LayersIcon from '@material-ui/icons/Layers';
+import AssignmentIcon from '@material-ui/icons/Assignment';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import MapIcon from '@material-ui/icons/Map';
+import { theme } from './theme';
 
 export const HeaderInfoContext = React.createContext(null);
 
@@ -34,6 +50,13 @@ const useStyles = makeStyles({
   },
   fontSize_small:{
     fontSize:"12px",
+  },
+  toolbarIcon:{
+    display:'flex',
+    alignItems: 'center',
+    justifyContent:'flex-end',
+    padding: '0 8px',
+    ...theme.mixins.toolbar,
   }
 });
 
@@ -45,33 +68,13 @@ function Default(){
     SetCovid19Info(info)
   });
 
-  useEffect(() =>{
-  },[]);
-
-  //サイドバー表示用
-  const sideList=(
-    <div className={classes.list}>
-      <List>
-        <ListItem button>
-          <Link to="/Home">Home</Link>
-        </ListItem>
-        <ListItem button>
-          <Link to="/About">About</Link>
-        </ListItem>
-        <ListItem button>
-          <Link to="/Service">Service</Link>
-        </ListItem>
-      </List>
-    </div>
-  );
-
   const toggleDrawer = (side, open) =>()=>{
     SetdrawerState(open);
   };
 
   //国内総合情報を表示
   function _DispTotalInfo(info){
-    console.log("test", info);
+    //infoがnullなら表示しない
     if(info !== undefined && info !== null){
       let dates = info.features.map(x => {
         return x.properties.確定日YYYYMMDD;
@@ -92,8 +95,10 @@ function Default(){
   return(
     <HeaderInfoContext.Provider value={{headerInfo}}>
     <div className={classes.root}>
-      <BrowserRouter>
-        <AppBar position="relative" color="primary">
+      <CssBaseline/>
+      {/* <BrowserRouter basename={process.env.PUBLIC_URL}> */}
+      <BrowserRouter basename='/'>
+        <AppBar position="relative">
           <Toolbar>
             <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={toggleDrawer('left', true)}>
               <MenuIcon></MenuIcon>
@@ -106,7 +111,19 @@ function Default(){
                 role="button"
                 onClick={toggleDrawer('left', false)}
                 onKeyDown={toggleDrawer('left', false)}>
-                {sideList}
+                <div className={classes.toolbarIcon}>
+                  <IconButton onClick={toggleDrawer('left', false)}>
+                    <ChevronLeftIcon/>
+                  </IconButton>
+                </div>
+                <Divider/>
+                <List className={classes.list}>
+                  {mainListItems}
+                </List>
+                <Divider/>
+                <List className={classes.list}>
+                  {secondaryListItems}
+                </List>
               </div>
             </Drawer>
               COVID-19 Map
@@ -116,10 +133,11 @@ function Default(){
           </Toolbar>
         </AppBar>
         <Switch>
-          <Route exact path='/Home'><Home/></Route>
-          <Route exact path='/About'><About/></Route>
-          <Route exact path='/Service'><Service/></Route>
-          <Route exact path=''><Home/></Route>
+          <Route path='/Map'><Map/></Route>
+          <Route path='/Chart'><Chart/></Route>
+          <Route path='/Reports'><Reports/></Route>
+          <Route exact path='/'><Map/></Route>
+          <Route path=''><Redirect to={'/Map'}/></Route>
         </Switch>
       </BrowserRouter>
     </div>

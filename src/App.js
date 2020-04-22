@@ -315,10 +315,12 @@ import Default from './Default';
 
 function App(){
   return(
-    <BrowserRouter>
+    /* <BrowserRouter basename={process.env.PUBLIC_URL}> */
+    <BrowserRouter basename='/'>
       <Switch>
-        <Route exact path='/Login'><Login/></Route>
-        <Route exact path=''><Default/></Route>
+        <Route path='/Login'><Login/></Route>
+        <Route exact path='/'><Default/></Route>
+        <Route path=''><Default/></Route>
       </Switch>
     </BrowserRouter>
   )
