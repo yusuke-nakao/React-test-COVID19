@@ -96,8 +96,7 @@ function Default(){
     <HeaderInfoContext.Provider value={{headerInfo}}>
     <div className={classes.root}>
       <CssBaseline/>
-      {/* <BrowserRouter basename={process.env.PUBLIC_URL}> */}
-      <BrowserRouter basename='/'>
+      <BrowserRouter basename={process.env.PUBLIC_URL}>
         <AppBar position="relative">
           <Toolbar>
             <IconButton className={classes.menuButton} color="inherit" aria-label="Menu" onClick={toggleDrawer('left', true)}>
